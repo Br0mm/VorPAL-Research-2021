@@ -2,14 +2,15 @@ import kastree.ast.Node
 import kastree.ast.psi.Parser
 import java.io.File
 
+val metrics = Metrics()
 
 fun main(args: Array<String>) {
-
     val fileName = "src/test/testData/"
     val files = File(fileName)
-    val fileTree = DirectoryTree()
+    val directoryTree = DirectoryTree()
     if (files.isDirectory)
-        generateFileTree(files, fileTree)
+        generateFileTree(files, directoryTree)
+    println(metrics.averageOverriddenMethodsPerFile)
 }
 
 
@@ -17,8 +18,11 @@ fun generateFileTree(files: File, directoryTree: DirectoryTree) {
     if (files.isDirectory) {
         directoryTree.name = files.name
         for (file in files.listFiles()) {
-            if (file.isFile)
-                directoryTree.fileASTs.add(generateAST(file))
+            if (file.isFile) {
+                val generatedAST = generateAST(file)
+                metrics.findAverageOverriddenMethodsPerFile(generatedAST)
+                directoryTree.fileASTs.add(generatedAST)
+            }
             else {
                 val newDirectory = DirectoryTree()
                 generateFileTree(file, newDirectory)
