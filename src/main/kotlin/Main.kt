@@ -11,6 +11,7 @@ fun main(args: Array<String>) {
     if (files.isDirectory)
         generateFileTree(files, directoryTree)
     println(metrics.averageOverriddenMethodsPerFile)
+    println(metrics.averageFieldsPerClass)
 }
 
 
@@ -21,6 +22,7 @@ fun generateFileTree(files: File, directoryTree: DirectoryTree) {
             if (file.isFile) {
                 val generatedAST = generateAST(file)
                 metrics.findAverageOverriddenMethodsPerFile(generatedAST)
+                metrics.findAverageFieldsPerClass(generatedAST)
                 directoryTree.fileASTs.add(generatedAST)
             }
             else {

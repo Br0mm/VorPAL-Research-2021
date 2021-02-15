@@ -4,8 +4,11 @@ import kastree.ast.Visitor
 class Metrics {
 
     var averageOverriddenMethodsPerFile = 0.0
-    var overrideCounter = 0.0
-    var filesCounter = 0.0
+    var averageFieldsPerClass = 0.0
+    private var overrideCounter = 0.0
+    private var filesCounter = 0.0
+    private var counterOfFields = 0.0
+    private var counterOfClasses = 0.0
 
 
     fun findAverageOverriddenMethodsPerFile(fileAST: Node.File) {
@@ -19,5 +22,15 @@ class Metrics {
         averageOverriddenMethodsPerFile = overrideCounter / filesCounter
     }
 
-
+    fun findAverageFieldsPerClass(fileAST: Node.File) {
+        Visitor.visit(fileAST) { v, _ ->
+            if (v is Node.Decl.Structured)
+                if (v.form == Node.Decl.Structured.Form.CLASS) {
+                    counterOfClasses++
+                    if (v.members.isNotEmpty())
+                        counterOfFields += v.members.filterIsInstance<Node.Decl.Property>().size
+                }
+        }
+        averageFieldsPerClass = counterOfFields / counterOfClasses
+    }
 }
