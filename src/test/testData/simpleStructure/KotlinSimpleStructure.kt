@@ -1,6 +1,6 @@
-var a = 5
+var p = 5
 
-class B {
+class F {
 
     var b = 6
 

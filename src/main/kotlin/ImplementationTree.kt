@@ -11,11 +11,6 @@ class ImplementationTree {
     var size: Int = 0
         private set
 
-    fun clear() {
-        root.children.clear()
-        size = 0
-    }
-
     fun add(element: Pair<String, String>) {
         size++
         if (runThroughAllChildren(root, element))
@@ -50,5 +45,19 @@ class ImplementationTree {
             if (child.children.size > 0) runThroughAllChildren(child, element)
         }
         return nodeWereAdded
+    }
+
+    fun findMaxHeight(height: Int): Int {
+        return findMaxHeight(root, height)
+    }
+
+    private fun findMaxHeight(node: Node, height: Int): Int {
+        var maxHeight = height + 1
+        for(child in node.children) {
+            val childMaxHeight = findMaxHeight(child, height + 1)
+            if (childMaxHeight > maxHeight)
+                maxHeight = childMaxHeight
+        }
+        return maxHeight
     }
 }

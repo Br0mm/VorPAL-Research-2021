@@ -6,7 +6,7 @@ import java.io.File
 val metrics = Metrics()
 
 fun main(args: Array<String>) {
-    val fileName = "src/test/testData/directory1/"
+    val fileName = "src/test/testData"
     val files = File(fileName)
     val directoryTree = DirectoryTree()
     if (files.isDirectory)
@@ -14,6 +14,8 @@ fun main(args: Array<String>) {
     println(metrics.averageOverriddenMethodsPerFile)
     println(metrics.averageFieldsPerClass)
     println(metrics.averageImplementationDepth)
+    println(metrics.maxImplementationDepth)
+    println(metrics.counterA)
 }
 
 
@@ -25,7 +27,8 @@ fun generateFileTree(files: File, directoryTree: DirectoryTree) {
                 val generatedAST = generateAST(file)
                 metrics.findAverageOverriddenMethodsPerFile(generatedAST)
                 metrics.findAverageFieldsPerClass(generatedAST)
-                metrics.findAverageImplementationDepth(generatedAST, file.path)
+                metrics.findImplementationDepth(generatedAST, file.path)
+                metrics.findAMetric(generatedAST)
                 directoryTree.fileASTs.add(generatedAST)
             }
             else {
