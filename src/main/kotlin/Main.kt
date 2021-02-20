@@ -6,16 +6,17 @@ import java.io.File
 val metrics = Metrics()
 
 fun main(args: Array<String>) {
-    val fileName = "src/test/testData"
+    val fileName = "src/test/testData/Test1.kt"
     val files = File(fileName)
     val directoryTree = DirectoryTree()
-    if (files.isDirectory)
-        generateFileTree(files, directoryTree)
-    println(metrics.averageOverriddenMethodsPerFile)
-    println(metrics.averageFieldsPerClass)
-    println(metrics.averageImplementationDepth)
-    println(metrics.maxImplementationDepth)
-    println(metrics.counterA)
+    generateFileTree(files, directoryTree)
+    println("Среднее количество переписанных методов для одного kt файла: " + metrics.averageOverriddenMethodsPerFile)
+    println("Среднее количество полей для одного класса: " + metrics.averageFieldsPerClass)
+    println("Средняя глубина наследования: " + metrics.averageImplementationDepth)
+    println("Максимальная глубина наследования: " + metrics.maxImplementationDepth)
+    println("A метрика: " + metrics.counterA)
+    println("B метрика: " + metrics.counterB)
+    println("C метрика: " + metrics.counterC)
 }
 
 
@@ -28,15 +29,21 @@ fun generateFileTree(files: File, directoryTree: DirectoryTree) {
                 metrics.findAverageOverriddenMethodsPerFile(generatedAST)
                 metrics.findAverageFieldsPerClass(generatedAST)
                 metrics.findImplementationDepth(generatedAST, file.path)
-                metrics.findAMetric(generatedAST)
+                metrics.findABCMetric(generatedAST)
                 directoryTree.fileASTs.add(generatedAST)
-            }
-            else {
+            } else {
                 val newDirectory = DirectoryTree()
                 generateFileTree(file, newDirectory)
                 directoryTree.directories.add(newDirectory)
             }
         }
+    } else {
+        val generatedAST = generateAST(files)
+        metrics.findAverageOverriddenMethodsPerFile(generatedAST)
+        metrics.findAverageFieldsPerClass(generatedAST)
+        metrics.findImplementationDepth(generatedAST, files.path)
+        metrics.findABCMetric(generatedAST)
+        directoryTree.fileASTs.add(generatedAST)
     }
 }
 

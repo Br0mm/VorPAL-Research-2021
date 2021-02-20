@@ -8,6 +8,8 @@ class Metrics {
     var averageImplementationDepth = 0.0
     var maxImplementationDepth = 0
     var counterA = 0
+    var counterC = 0
+    var counterB = 0
     private val implementationTree = ImplementationTree()
     private var overrideCounter = 0.0
     private var filesCounter = 0.0
@@ -16,6 +18,9 @@ class Metrics {
     private val assigmentTokens = mutableSetOf(Node.Expr.BinaryOp.Token.ASSN,
             Node.Expr.BinaryOp.Token.ADD_ASSN, Node.Expr.BinaryOp.Token.DIV_ASSN, Node.Expr.BinaryOp.Token.MOD_ASSN,
             Node.Expr.BinaryOp.Token.MUL_ASSN, Node.Expr.BinaryOp.Token.SUB_ASSN)
+    private val conditionTokens = mutableSetOf(Node.Expr.BinaryOp.Token.GT,
+            Node.Expr.BinaryOp.Token.GTE, Node.Expr.BinaryOp.Token.EQ, Node.Expr.BinaryOp.Token.NEQ,
+            Node.Expr.BinaryOp.Token.LTE, Node.Expr.BinaryOp.Token.LT)
 
 
     fun findAverageOverriddenMethodsPerFile(fileAst: Node.File) {
@@ -77,7 +82,7 @@ class Metrics {
         }
     }
 
-    fun findAMetric(fileAst: Node.File) {
+    fun findABCMetric(fileAst: Node.File) {
         Visitor.visit(fileAst) { v, _ ->
             if (v is Node.Decl.Property) {
                 counterA++
@@ -85,9 +90,24 @@ class Metrics {
             if (v is Node.Expr.BinaryOp.Oper.Token) {
                 if (assigmentTokens.contains(v.token))
                     counterA++
+                if (conditionTokens.contains(v.token))
+                    counterC++
             }
             if (v is Node.Expr.UnaryOp.Oper) {
                 counterA++
+            }
+            if (v is Node.Expr.Call) {
+                counterB++
+            }
+            if (v is Node.Expr.If) {
+                if (v.elseBody != null)
+                    counterC++
+            }
+            if (v is Node.Expr.When) {
+                counterC += v.entries.size
+            }
+            if (v is Node.Expr.Try) {
+                counterC += v.catches.size + 1
             }
         }
     }

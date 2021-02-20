@@ -18,4 +18,4 @@ class Test {
     }
 }
 
-var kek = Test()
+var test = Test()
