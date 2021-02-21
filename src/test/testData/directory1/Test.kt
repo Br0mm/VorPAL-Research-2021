@@ -1,4 +1,4 @@
-import directory1.test1.B
+import directory1.test1.*
 
 class Test : B() {
     fun foo() {

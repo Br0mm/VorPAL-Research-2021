@@ -4,11 +4,12 @@ import java.io.File
 
 val metrics = Metrics()
 val generator = XMLGenerator()
+val generatedAsts = mutableListOf<Pair<String, Node.File>>()
 
 fun main(args: Array<String>) {
     val files = File(args[0])
-    val directoryTree = DirectoryTree()
-    generateFileTree(files, directoryTree)
+    generateFileTree(files)
+    findImplementationDepth()
     val metricValues = listOf("${metrics.averageOverriddenMethodsPerFile}", "${metrics.averageFieldsPerClass}",
             "${metrics.averageImplementationDepth}", "${metrics.maxImplementationDepth}", "${metrics.counterA}",
                 "${metrics.counterB}", "${metrics.counterC}")
@@ -23,33 +24,26 @@ fun main(args: Array<String>) {
 }
 
 
-fun generateFileTree(files: File, directoryTree: DirectoryTree) {
+fun generateFileTree(files: File) {
     if (files.isDirectory) {
-        directoryTree.name = files.name
         for (file in files.listFiles()) {
             if (file.isFile) {
                 val generatedAST = generateAST(file)
-                metrics.findAverageOverriddenMethodsPerFile(generatedAST)
-                metrics.findAverageFieldsPerClass(generatedAST)
-                metrics.findImplementationDepth(generatedAST, file.path)
-                metrics.findABCMetric(generatedAST)
-                directoryTree.fileASTs.add(generatedAST)
-            } else {
-                val newDirectory = DirectoryTree()
-                generateFileTree(file, newDirectory)
-                directoryTree.directories.add(newDirectory)
-            }
+                generatedAsts.add(Pair(files.path, generatedAST))
+                metrics.findMetrics(generatedAST, files.path)
+            } else generateFileTree(file)
         }
     } else {
         val generatedAST = generateAST(files)
-        metrics.findAverageOverriddenMethodsPerFile(generatedAST)
-        metrics.findAverageFieldsPerClass(generatedAST)
-        metrics.findImplementationDepth(generatedAST, files.path)
-        metrics.findABCMetric(generatedAST)
-        directoryTree.fileASTs.add(generatedAST)
+        metrics.findMetrics(generatedAST, files.path)
     }
 }
 
+fun findImplementationDepth(){
+    for ((key, value) in generatedAsts) {
+        metrics.findImplementationDepth(value, key)
+    }
+}
 
 fun generateAST(code: File): Node.File {
     val codeStr = code.readText().replace("\r\n", "\n")
