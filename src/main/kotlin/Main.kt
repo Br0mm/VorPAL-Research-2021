@@ -28,14 +28,18 @@ fun generateFileTree(files: File) {
     if (files.isDirectory) {
         for (file in files.listFiles()) {
             if (file.isFile) {
-                val generatedAST = generateAST(file)
-                generatedAsts.add(Pair(files.path, generatedAST))
-                metrics.findMetrics(generatedAST, files.path)
+                if (file.name.endsWith(".kt")) {
+                    val generatedAST = generateAST(file)
+                    generatedAsts.add(Pair(files.path, generatedAST))
+                    metrics.findMetrics(generatedAST, files.path)
+                }
             } else generateFileTree(file)
         }
     } else {
-        val generatedAST = generateAST(files)
-        metrics.findMetrics(generatedAST, files.path)
+        if (files.name.endsWith(".kt")) {
+            val generatedAST = generateAST(files)
+            metrics.findMetrics(generatedAST, files.path)
+        }
     }
 }
 
