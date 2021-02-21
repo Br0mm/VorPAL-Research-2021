@@ -39,11 +39,9 @@ class Metrics {
                         overrideCounter++
             if (v is Node.Decl.Structured) {
                 declaredStructuresInPackage[pkg]!!.add(v.name)
-                if (v.form == Node.Decl.Structured.Form.CLASS) {
-                    counterOfClasses++
-                    if (v.members.isNotEmpty())
-                        counterOfFields += v.members.filterIsInstance<Node.Decl.Property>().size
-                }
+                counterOfClasses++
+                if (v.members.isNotEmpty())
+                    counterOfFields += v.members.filterIsInstance<Node.Decl.Property>().size
             }
             if (v is Node.Decl.Property) {
                 counterA++
