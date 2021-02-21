@@ -1,3 +1,4 @@
+
 import kastree.ast.Node
 import kastree.ast.Visitor
 
@@ -49,7 +50,9 @@ class Metrics {
 
     fun findImplementationDepth(fileAst: Node.File, fileName: String) {
         val imports = mutableListOf<Node.Import>()
+        val children = mutableListOf<String>()
         var pkg: String? = ""
+        var ableToFindParentName = false
         Visitor.visit(fileAst) { v, _ ->
             if (v is Node.File) {
                 pkg = v.pkg?.names?.joinToString(separator = ".")
@@ -57,23 +60,31 @@ class Metrics {
                 for (import in v.imports)
                     imports += import
             }
-            if (v is Node.Decl.Structured) {
-                for (parent in v.parents) {
-                    val parentName = Regex("""[a-zA-Z0-9(\[=]+name=|, [ ,a-zA-Z=0-9\[\])]+""")
-                            .split(parent.toString())
-                    if (parentName.size == 3) {
+            if (v is Node.TypeRef.Simple) {
+                if (ableToFindParentName) {
+                    ableToFindParentName = false
+                    val nameBuilder = StringBuilder()
+                    for (piece in v.pieces)
+                        nameBuilder.append(piece.name + ".")
+                    val name = nameBuilder.toString().removeSuffix(".")
+                    if (v.pieces.size == 1) {
                         var importPackage = ""
                         var isImported = false
                         for (import in imports)
-                            if (import.names.last() == parentName[1]) {
+                            if (import.names.last() == name) {
                                 importPackage = import.names.joinToString(separator = ".")
                                 isImported = true
                             }
-                        if (isImported) implementationTree.add(Pair(importPackage, pkg + "." + v.name))
-                        else implementationTree.add(Pair(pkg + "." + parentName[1], pkg + "." + v.name))
-                    } else implementationTree.add(Pair(parentName.subList(1, parentName.size - 1)
-                            .joinToString(separator = "."), pkg + "." + v.name))
+                        if (isImported) implementationTree.add(Pair(importPackage, children.last()))
+                        else implementationTree.add(Pair("$pkg.$name", children.last()))
+                    } else implementationTree.add(Pair(name, children.last()))
                 }
+            }
+            if (v is Node.Decl.Structured) {
+                if (v.parents.isNotEmpty()) children.add(pkg + "." + v.name)
+            }
+            if (v is Node.Decl.Structured.Parent) {
+                ableToFindParentName = true
             }
         }
         if (implementationTree.size > 0) {

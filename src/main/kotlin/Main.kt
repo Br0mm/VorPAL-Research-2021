@@ -6,15 +6,14 @@ val metrics = Metrics()
 val generator = XMLGenerator()
 
 fun main(args: Array<String>) {
-    val fileName = "src/test/testData/Test1.kt"
-    val files = File(fileName)
+    val files = File(args[0])
     val directoryTree = DirectoryTree()
     generateFileTree(files, directoryTree)
     val metricValues = listOf("${metrics.averageOverriddenMethodsPerFile}", "${metrics.averageFieldsPerClass}",
             "${metrics.averageImplementationDepth}", "${metrics.maxImplementationDepth}", "${metrics.counterA}",
                 "${metrics.counterB}", "${metrics.counterC}")
-    generator.generateXMLFile("test", fileName, metricValues)
-    println("Среднее количество переписанных методов для одного kt файла: " + metrics.averageOverriddenMethodsPerFile)
+    generator.generateXMLFile(args[1], args[0], metricValues)
+    println("Среднее количество переписанных методов для одного .kt файла: " + metrics.averageOverriddenMethodsPerFile)
     println("Среднее количество полей для одного класса: " + metrics.averageFieldsPerClass)
     println("Средняя глубина наследования: " + metrics.averageImplementationDepth)
     println("Максимальная глубина наследования: " + metrics.maxImplementationDepth)
