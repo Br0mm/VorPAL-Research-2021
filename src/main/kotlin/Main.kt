@@ -10,11 +10,11 @@ fun main(args: Array<String>) {
     val files = File(args[0])
     generateFileTree(files)
     findImplementationDepth()
-    val metricValues = listOf("${metrics.averageOverriddenMethodsPerFile}", "${metrics.averageFieldsPerClass}",
+    val metricValues = listOf("${metrics.averageOverriddenMethodsPerClass}", "${metrics.averageFieldsPerClass}",
             "${metrics.averageImplementationDepth}", "${metrics.maxImplementationDepth}", "${metrics.counterA}",
                 "${metrics.counterB}", "${metrics.counterC}")
     generator.generateXMLFile(args[1], args[0], metricValues)
-    println("Среднее количество переписанных методов для одного .kt файла: " + metrics.averageOverriddenMethodsPerFile)
+    println("Среднее количество переписанных методов для одного класса: " + metrics.averageOverriddenMethodsPerClass)
     println("Среднее количество полей для одного класса: " + metrics.averageFieldsPerClass)
     println("Средняя глубина наследования: " + metrics.averageImplementationDepth)
     println("Максимальная глубина наследования: " + metrics.maxImplementationDepth)

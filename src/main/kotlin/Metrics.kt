@@ -4,7 +4,7 @@ import kastree.ast.Visitor
 
 class Metrics {
 
-    var averageOverriddenMethodsPerFile = 0.0
+    var averageOverriddenMethodsPerClass = 0.0
     var averageFieldsPerClass = 0.0
     var averageImplementationDepth = 0.0
     var maxImplementationDepth = 0
@@ -13,7 +13,6 @@ class Metrics {
     var counterB = 0
     private val implementationTree = ImplementationTree()
     private var overrideCounter = 0.0
-    private var filesCounter = 0.0
     private var counterOfFields = 0.0
     private var counterOfClasses = 0.0
     private var declaredStructuresInPackage = mutableMapOf<String?, MutableList<String>>()
@@ -27,7 +26,6 @@ class Metrics {
 
     fun findMetrics(fileAst: Node.File, fileName: String) {
         var pkg: String? = ""
-        filesCounter++
         Visitor.visit(fileAst) { v, _ ->
             if (v is Node.File) {
                 pkg = v.pkg?.names?.joinToString(separator = ".")
@@ -73,7 +71,7 @@ class Metrics {
                 counterC += v.catches.size + 1
             }
         }
-        averageOverriddenMethodsPerFile = overrideCounter / filesCounter
+        averageOverriddenMethodsPerClass = overrideCounter / counterOfClasses
         averageFieldsPerClass = counterOfFields / counterOfClasses
     }
 
